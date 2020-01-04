@@ -1,0 +1,13 @@
+name: gundb
+version: 0.1.0
+
+authors:
+  - Joel Lonbeck <joel@neutrinographics.com>
+
+targets:
+  gundb:
+    main: src/gundb.cr
+
+crystal: 0.31.1
+
+license: MIT
