@@ -1,6 +1,6 @@
 class Dup
-    MAX = 1
-    AGE = 9
+    MAX = 1000
+    AGE = 9 * 1000
 
     @dup : Hash(String, Time)
     @to : Bool
@@ -21,7 +21,7 @@ class Dup
             @to = true
             spawn do
                 sleep AGE
-                @dup.delete_if { |_, time| time >= Time.utc - AGE.seconds}
+                @dup.delete_if { |_, time| time >= Time.utc - AGE.milliseconds}
                 @to = false
             end
         end

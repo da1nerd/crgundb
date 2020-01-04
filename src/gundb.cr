@@ -1,17 +1,35 @@
 require "http/server"
 require "json"
 require "./dup"
+require "./ham"
+
+alias Graph = Hash(String, JSON::Any)
 
 dup = Dup.new
-
 peers = [] of HTTP::WebSocket
+graph = Graph.new
+
+# This is the json format we need to support.
+# {
+#   _: {
+#     "#": "UID",
+#     ">": { ...keys: int}
+#   }
+#   ...keys
+# }
+
 ws_handler = HTTP::WebSocketHandler.new do |peer|
   peers << peer
   peer.on_message do |data|
+    test = Hash(String, Hash(String, JSON::Any)).from_json(data)
     msg = JSON.parse(data)
     if !dup.check(msg["#"].as_s)
       dup.track(msg["#"].as_s)
-      puts "received: #{msg}"
+      if(msg["put"])
+        HAM.mix(msg["put"], graph)
+        puts "----------"
+        puts graph
+      end
       peers.each do |p|
         begin
           p.send(data)
