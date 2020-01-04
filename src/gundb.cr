@@ -4,30 +4,25 @@ require "./dup"
 
 dup = Dup.new
 
-SOCKETS = [] of HTTP::WebSocket
-ws_handler = HTTP::WebSocketHandler.new do |socket|
-  puts "Socket opened"
-  SOCKETS << socket
-  socket.on_message do |data|
-    # new message
+peers = [] of HTTP::WebSocket
+ws_handler = HTTP::WebSocketHandler.new do |peer|
+  peers << peer
+  peer.on_message do |data|
     msg = JSON.parse(data)
     if !dup.check(msg["#"].as_s)
       dup.track(msg["#"].as_s)
       puts "received: #{msg}"
+      peers.each do |p|
+        begin
+          p.send(data)
+        rescue
+          # puts e.message
+        end
+      end
     end
   end
-  socket.on_close do
-    puts "Socket closed"
-  end
-
-  spawn do
-    count = 0
-    loop do
-      sleep 1
-      count += 1
-      msg = { "#": dup.track(count.to_s) }
-      socket.send(msg.to_json)
-    end
+  peer.on_close do
+    # TODO: remove peer from array
   end
 end
 server = HTTP::Server.new([ws_handler])
