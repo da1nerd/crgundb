@@ -7,8 +7,16 @@ alias Graph = Hash(String, JSON::Any)
 
 dup = Dup.new
 peers = [] of HTTP::WebSocket
-graph = Graph.new
+# graph = Graph.new
 
+class GraphHolder
+  getter graph
+  def initialize()
+    @graph = Graph.new
+  end
+end
+
+graph = GraphHolder.new
 # This is the json format we need to support.
 # {
 #   _: {
@@ -21,14 +29,13 @@ graph = Graph.new
 ws_handler = HTTP::WebSocketHandler.new do |peer|
   peers << peer
   peer.on_message do |data|
-    test = Hash(String, Hash(String, JSON::Any)).from_json(data)
     msg = JSON.parse(data)
     if !dup.check(msg["#"].as_s)
       dup.track(msg["#"].as_s)
       if(msg["put"])
         HAM.mix(msg["put"], graph)
         puts "----------"
-        puts graph
+        puts graph.graph
       end
       peers.each do |p|
         begin

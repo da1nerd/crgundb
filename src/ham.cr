@@ -15,6 +15,9 @@ module HAM
         if incoming_state < current_state
             return HAMResult.new(historical: true)
         end
+        if current_state < incoming_state
+            return HAMResult.new(converge: true, incoming: true)
+        end
         if incoming_state == current_state
             incoming_lexical_value = incoming_value.to_json
             current_lexical_value = current_value.to_json
@@ -33,35 +36,46 @@ module HAM
 
     # iterate over each node in the graph, and then for each key value within each node
     # we're then grabbing the vector states off of what we have in memory, and with the incoming update as well as the data
-    def mix(change : JSON::Any, graph : Graph)
+    def mix(change : JSON::Any, graph : GraphHolder)
         machine = (Time.utc - Time::UNIX_EPOCH).total_milliseconds
         diff = Graph.new
-        change.as(Graph).each_key do |soul|
+        change.as_h.each_key do |soul|
             node = change[soul]
-            node.as(Hash(String, JSON::Any)).each_key do |key|
+            node.as_h.each_key do |key|
                 val = node[key]
-                return if "_" == key
-                state = node["_"][">"][key].as_f32
+                next if "_" == key
+                state = node["_"][">"][key].as_i64.to_f32
                 was = -Float32::INFINITY
-                if graph[soul] && graph[soul]["_"][">"][key]
-                    was = graph[soul]["_"][">"][key].as_f32
+                if graph.graph.has_key?(soul) && graph.graph[soul]["_"][">"].as_h.has_key?(key)
+                    was = graph.graph[soul]["_"][">"][key].as_f32
                 end
-                # was = (graph[soul]||{ "_": {">": {} of String => JSON::Any}})["_"][">"][key] || -Float32::INFINITY
-                known = (graph[soul]||{} of String => String)[key]
+                known = ""
+                if graph.graph.has_key?(soul)
+                    known = graph.graph[soul]
+                end
                 ham = HAM.calc(machine, state, was, val, known)
+                if ham.err
+                    puts ham.err
+                end
                 if !ham.incoming
                     if ham.defer
                         puts "DEFER #{key} #{val}"
                         # TODO: you'd need to implement this yourself.
                     end
-                    # next
-                    return
+                    next
                 end
-                # TODO: make sure diff is
-                diff[soul] = diff[soul] || JSON.parse("{'_': {'#': #{soul}, '>': {}}}")
-                graph[soul] = graph[soul] || JSON.parse("{'_': {'#': #{soul}, '>': {} }}")
-                graph[soul].as(Graph)[key] = diff[soul].as(Graph)[key] = val
-                graph[soul]["_"].as(Graph)['>'].as(Graph)[key] = diff[soul]["_"].as(Graph)['>'].as(Graph)[key] = state.as(JSON::Any)
+                if !diff.has_key?(soul)
+                    diff[soul] = JSON.parse("{\"_\": {\"#\": \"#{soul}\", \">\": {}}}")
+                end
+                # diff[soul] = diff[soul] || JSON.parse("{'_': {'#': #{soul}, '>': {}}}")
+                if !graph.graph.has_key?(soul)
+                    graph.graph[soul] = JSON.parse("{\"_\": {\"#\": \"#{soul}\", \">\": {}}}")
+                end
+                # graph.graph[soul] = graph.graph[soul] || JSON.parse("{'_': {'#': #{soul}, '>': {} }}")
+                graph.graph[soul].as_h[key] = val
+                diff[soul].as_h[key] = val
+                graph.graph[soul]["_"][">"].as_h[key] = JSON::Any.new(state.to_f64)
+                diff[soul]["_"][">"].as_h[key] = JSON::Any.new(state.to_f64)
             end
         end
         # return diff
