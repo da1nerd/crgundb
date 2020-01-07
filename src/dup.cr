@@ -28,7 +28,7 @@ class Dup
         id
     end
 
-    def random
+    def self.random
         Random.rand(32).to_s()[-1..-3]
     end
 end

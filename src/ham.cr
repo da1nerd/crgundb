@@ -55,7 +55,8 @@ module HAM
                 end
                 ham = HAM.calc(machine, state, was, val, known)
                 if ham.err
-                    puts ham.err
+                    # TODO: handle errors
+                    # puts "ham error #{ham.err.to_s}"
                 end
                 if !ham.incoming
                     if ham.defer
