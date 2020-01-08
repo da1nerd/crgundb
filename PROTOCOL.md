@@ -20,6 +20,9 @@ I may take license to reword/rename certain features in order to make things cle
 Messages have a UUID keyed by `#`, an optional acknowledgement keyed by `@`, and a command.
 The command is an object that contains any number of records.
 
+> NOTE: If it were my decision, I would not have used `#` as the messages id key since it confuses with the similar field inside of a record.
+> Just remember that the message's UUID is not at all related to the record's UUID, neither does it represent anything in the database. The message UUID is just used for transmitting messages through the network.
+
 ```json
 {
     "#": "the-message-uuid",
@@ -104,7 +107,7 @@ jack.boss.sibling.name == "Jill"
 
 ## Record Format
 
-The command inside of a message always contains some messages. These describe the data being communicated.
+The command inside of a message usually contains some records. These describe the data being communicated.
 There is a single reserved key `_` that contains metadata about this particular record.
 The rest is the actual record data.
 
