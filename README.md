@@ -35,4 +35,4 @@ TODO: Write development instructions here
 
 ## Contributors
 
-- [Joel Lonbeck](https://github.com/neutrinog) - creator and maintainer
+- [Joel](https://github.com/neutrinog) - creator and maintainer
