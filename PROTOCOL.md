@@ -11,15 +11,128 @@ I may take license to reword/rename certain features in order to make things cle
 * **node** This is what I'm calling a server running some GunDB code. It could be a server or a client, but in some fashion it participates in propogating messages through the network.
 * **network** this is a collection of nodes spread over a geographic region, that have at least one link to another node in the network.
 * **message** this is information transmitted to and from a node.
+* **record** a piece of information being sent in the message.
+* **graph** a way to represent data recursively and other fun stuff.
+
 
 ## Message Format
 
-A message is just a json object with a single reserved key `_` that contains information to uniquely identify the message and evaluate it's chronological order of occurrence within the network.
+Messages have a UUID keyed by `#`, an optional acknowledgement keyed by `@`, and a command.
+The command is an object that contains any number of records.
 
-Here are some example payloads.
-> TODO: break these down and explain each part.
+```json
+{
+    "#": "the-message-uuid",
+    "@": "uuid-of-message-acknowledged",
+    "some-command": {
+        "some-record-uuid": {}
+    }
+}
+```
 
-writing to the database
+Available commands:
+* **get**
+* **put**
+
+### Put Message (write)
+
+```json
+{
+    "#": "put-message-uuid",
+    "put": {}
+}
+```
+
+### Get Message (read)
+
+```json
+{
+    "#": "get-message-uuid",
+    "get": {}
+}
+```
+
+### Awk Message (read response)
+
+```json
+{
+    "#": "awk-message-uuid",
+    "@": "get-message-uuid",
+    "put": {}
+}
+```
+
+## Graph Format
+
+The data in GunDB is all communicated in JSON. However, JSON cannot represent graph data so we must follow some rules.
+A record can be linked to any record in the graph including itself by referencing the record's UUID.
+
+Example:
+```json
+{
+    "ABC": {
+        "name": "Jack",
+        "sibling": {
+            "#": "CBA"
+        },
+        "status": "self-employed",
+        "boss": {
+            "#": "ABC"
+        }
+    },
+    "CBA": {
+        "name": "Jill",
+        "sibling": {
+            "#": "ABC"
+        }
+    }
+}
+```
+
+Let's pretend to take the above example and transform it into a language that conveniently provides dot-notation for looking up graph data. So we have a `jack` graph record and a `jill` graph record in our pseudo language, based on the example data above.
+
+```js
+// this is only pseudo code
+jack.name == "Jack"
+
+jack.sibling.name == "Jill"
+jack.sibling.sibling.name == "Jack"
+
+jack.boss.name == "Jack"
+jack.boss.sibling.name == "Jill"
+```
+
+## Record Format
+
+The command inside of a message always contains some messages. These describe the data being communicated.
+There is a single reserved key `_` that contains metadata about this particular record.
+The rest is the actual record data.
+
+```json
+{
+    "_": {},
+    "my-key": "My data",
+}
+```
+
+### Record Metadata Format
+
+The record metadata contains the record id under `#` and a vector under `>`.
+The vector should contain keys matching the data and provides numerical values indicating the chronological order of the data keys. This information is used by GunDB to perform data conflict resolution.
+
+```json
+{
+    "#": "the-record-uuid",
+    ">": {
+        "my-key": 123456789
+    }
+}
+```
+
+## Full Message Example
+
+Writing data
+
 ```json
 {
     "#": "yb2",
@@ -56,36 +169,8 @@ writing to the database
 }
 ```
 
-writing more to the database
-```json
-{
-    "#": "8t2",
-    "put": {
-        "ASDF": {
-            "_": {
-                "#": "ASDF",
-                ">": {
-                    "name": 1
-                }
-            },
-            "name": "Mark"
-        },
-        "FDSA": {
-            "_": {
-                "#": "FDSA",
-                ">": {
-                    "species": 2,
-                    "color": 3
-                }
-            },
-            "species": "felis silvestris",
-            "color": "ginger"
-        }
-    }
-}
-```
+Reading data
 
-reading from the database
 ```json
 {
     "#": "i9b",
@@ -96,7 +181,7 @@ reading from the database
 }
 ```
 
-response from read request
+Read response
 ```json
 {
     "#": "",
@@ -107,25 +192,6 @@ response from read request
                 "#": "FDSA",
                 ">": {
                     "species": 2
-                }
-            },
-            "species": "a kitty"
-        }
-    }
-}
-```
-
-forwarding message to the rest of the network, notice how it is identical to the response above.
-```json
-{
-    "#": "",
-    "@": "i9b",
-    "put": {
-        "FDSA": {
-            "_": {
-                "#": "FDSA",
-                ">": {
-                    "species": 2.0
                 }
             },
             "species": "a kitty"
