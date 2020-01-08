@@ -1,6 +1,6 @@
 # gundb
 
-TODO: Write a description here
+This is a port of gundb's [sample project](https://github.com/gundb/port)
 
 ## Installation
 
