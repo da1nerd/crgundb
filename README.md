@@ -1,11 +1,12 @@
 # gundb
 
-This is a port of gundb's [sample project](https://github.com/gundb/port).
+This is a port of gundb written in [Crystal](https://crystal-lang.org/).
 
 ## Road Map
 
 I'm shooting for a minimum viable product here without too many bells and whistles.
 
+* [x] port gundb's [sample project](https://github.com/gundb/port)
 * [ ] write a formal-ish communication protocol. There's stuff floating around but nothing succinct with retro ASCII illustrations.
 * [ ] clean up my hacky crystal code and abstract the gun logic into some usable modules
   * [ ]  with tests
