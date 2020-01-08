@@ -8,7 +8,7 @@ I may take license to reword/rename certain features in order to make things cle
 
 ## Definitions
 
-* **node** This is what I'm calling a server running some GunDB code. It could be a server or a client, but in some fashion it participates in propogating messages through the network.
+* **node** This is what I'm calling a server running some GunDB code. It could be a server or a client, but in some fashion it participates in propagating messages through the network.
 * **network** this is a collection of nodes spread over a geographic region, that have at least one link to another node in the network.
 * **message** this is information transmitted to and from a node.
 * **record** a piece of information being sent in the message.
@@ -17,7 +17,7 @@ I may take license to reword/rename certain features in order to make things cle
 
 ## Message Format
 
-Messages have a UUID keyed by `#`, an optional acknowledgement keyed by `@`, and a command.
+Messages have a UUID keyed by `#`, an optional acknowledgment keyed by `@`, and a command.
 The command is an object that contains any number of records.
 
 > NOTE: If it were my decision, I would not have used `#` as the messages id key since it confuses with the similar field inside of a record.
