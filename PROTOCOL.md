@@ -1,4 +1,4 @@
-# Network Protocal For GunDB
+# Network Protocol For GunDB
 
 If you want an overview of what GunDB is, you're in the wrong place.
 This is hopefully a detailed specification of the communication protocol employed by GunDB.

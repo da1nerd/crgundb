@@ -7,7 +7,7 @@ This is a port of gundb written in [Crystal](https://crystal-lang.org/).
 I'm shooting for a minimum viable product here without too many bells and whistles.
 
 * [x] port gundb's [sample project](https://github.com/gundb/port)
-* [ ] write a formal-ish communication [PROTOCAL.md](./PROTOCAL.md). There's stuff floating around but nothing succinct with retro ASCII illustrations.
+* [ ] write a formal-ish communication [PROTOCOL.md](./PROTOCOL.md). There's stuff floating around but nothing succinct with retro ASCII illustrations.
 * [ ] clean up my hacky crystal code and abstract the gun logic into some usable modules
   * [ ]  with tests
 * [ ] create a gundb client
