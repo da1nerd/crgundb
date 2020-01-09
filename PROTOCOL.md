@@ -1,10 +1,11 @@
 # Network Protocol For GunDB
 
-If you want an overview of what GunDB is, you're in the wrong place.
+> WORK IN PROGRESS
+
 This is hopefully a detailed specification of the communication protocol employed by GunDB.
 Websockets, storage devices, etc. are all beyond the scope of this specification.
-My real goal is to provide something clear and succinct that others can develop from.
-I may take license to reword/rename certain features in order to make things clearer to myself.
+My real goal is to provide something clear and succinct that I can keep as a reference and hopefully others can develop from.
+I may take license to reword/rename certain aspects of the offical [gundb docs](https://gun.eco/docs/Introduction) in order to make things clearer to myself.
 
 ## Definitions
 
